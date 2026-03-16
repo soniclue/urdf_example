@@ -1,0 +1,28 @@
+services:
+  ros-dev:
+    build:
+      context: .
+      network: host
+    image: ros-dev:humble
+    container_name: ros-dev
+    network_mode: host
+    environment:
+      - DISPLAY=${DISPLAY}
+      - QT_X11_NO_MITSHM=1
+      - GAZEBO_MODEL_PATH=/workspace/src
+      - ROS_DOMAIN_ID=42
+      # AMD/Mesa Specific Optimizations
+      - vblank_mode=0        # Disables vsync to prevent FPS capping
+      - MESA_GLTHREAD=true   # Enables multi-threaded GL for better CPU/GPU throughput
+    volumes:
+      - .:/workspace
+      - /tmp/.X11-unix:/tmp/.X11-unix:ro
+    devices:
+      - /dev/dri:/dev/dri    # Direct access to AMD GPU
+    group_add:
+      - video                # Essential for GPU device permissions
+    security_opt:
+      - seccomp:unconfined   # Needed for certain GPU/system-level calls
+    working_dir: /workspace
+    stdin_open: true         # Keeps stdin open even if not attached
+    tty: true                # Allocates a pseudo-TTY
